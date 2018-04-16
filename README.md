@@ -1,6 +1,6 @@
 # Sound Analyzer
 
-author: Patrick Stetz [gihub](https://github.com/pstetz)
+author: Patrick Stetz [(gihub)](https://github.com/pstetz)
 
 # Introduction:
 
