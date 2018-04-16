@@ -33,18 +33,19 @@ class Music:
         # create music
         for measure in self.measures:
             file.write('  <measure number="{}">\n'.format(measure.number))
-            file.write('    <attributes>\n')
-            file.write('      <divisions>{}</divisions>\n'.format(measure.divisions))
-            file.write('      <key><fifths>0</fifths></key>\n') # FIXME: look into this
-            file.write('      <time>\n')
-            file.write('        <beats>{}</beats>\n'.format(measure.beats))
-            file.write('        <beat-type>{}</beat-type>\n'.format(measure.beat_type))
-            file.write('      </time>\n')
-            file.write('      <clef>\n')
-            file.write('        <sign>{}</sign>\n'.format(measure.sign))
-            file.write('        <line>{}</line>\n'.format(measure.line))
-            file.write('      </clef>\n')
-            file.write('    </attributes>\n')
+            if measure.new_attributes:
+                file.write('    <attributes>\n')
+                file.write('      <divisions>{}</divisions>\n'.format(measure.divisions))
+                file.write('      <key><fifths>0</fifths></key>\n') # FIXME: look into this
+                file.write('      <time>\n')
+                file.write('        <beats>{}</beats>\n'.format(measure.beats))
+                file.write('        <beat-type>{}</beat-type>\n'.format(measure.beat_type))
+                file.write('      </time>\n')
+                file.write('      <clef>\n')
+                file.write('        <sign>{}</sign>\n'.format(measure.sign))
+                file.write('        <line>{}</line>\n'.format(measure.line))
+                file.write('      </clef>\n')
+                file.write('    </attributes>\n')
 
             # writes notes from spefic measure
             for note in measure.notes:
