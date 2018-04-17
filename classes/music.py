@@ -39,7 +39,7 @@ class Music:
         notes = self.get_notes(peaks)
         notes = self.filter_notes(notes, sec_delay)
         for i, note in enumerate(notes):
-            measure = Measure(i)
+            measure = Measure(i+1)
             measure.addNote(note)
             self.addMeasure(measure)
     
@@ -61,7 +61,7 @@ class Music:
         N = len(notes)
         to_delete = list()
         for i in range(1, N):
-            if notes[i - 1].timestamp + sec_delay > notes[i].timestamp:
+            if notes[i - 1].given_pitch == notes[i].given_pitch:
                 to_delete.append(i)
         for index in list(reversed(to_delete)):
             del notes[index]
@@ -124,7 +124,10 @@ class Music:
                 file.write('      <pitch>\n')
                 file.write('        <step>{}</step>\n'.format(note.note))
                 file.write('        <octave>{}</octave>\n'.format(note.octave))
-                file.write('        <alter>{}</alter>\n'.format(note.alter))
+                
+                # I don't think this is right
+                # file.write('        <alter>{}</alter>\n'.format(note.alter))
+                
                 file.write('      </pitch>\n')
                 file.write('      <duration>{}</duration>\n'.format(note.duration))
                 file.write('      <type>{}</type>\n'.format(note.typ))

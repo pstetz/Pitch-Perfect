@@ -10,7 +10,7 @@ class Measure:
         
         self.beats = beats
         self.beat_type = beat_type
-        clefInfo = getClef(clef)
+        clefInfo = self.getClef(clef)
         self.line = clefInfo["line"]
         self.sign = clefInfo["sign"]
         
@@ -19,7 +19,7 @@ class Measure:
     def addNote(self, note):
         self.notes.append(note)
         
-    def getClef(clef):
+    def getClef(self, clef):
         return {
                 "treble": {"sign": "G", "line": 2},
                 "alto":   {"sign": "C", "line": 3},
