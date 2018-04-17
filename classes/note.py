@@ -2,8 +2,9 @@ import numpy as np
 
 class Note:
     
-    def __init__(self, pitch, duration=4, typ="whole"):
-        self.pitch = pitch
+    def __init__(self, pitch, timestamp, duration=4, typ="whole"):
+        self.pitch = round(pitch, 3)
+        self.timestamp = timestamp
         self.duration = duration
         self.typ = typ
         self.given_pitch = self.closest_pitch(pitch)

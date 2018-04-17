@@ -39,9 +39,10 @@ class Music:
         self.chan1, self.chan2 = zip(*self.raw)
         self.measures = list()
         
-    def compile_music(self, window=1000, resolution=10000, SIGMA=3):
-        peaks = self.find_peaks(window, resolution, SIGMA)
+    def compile_music(self, window=1000, resolution=10000, DIFF=15, sec_delay=0.3):
+        peaks = self.find_peaks(window, resolution, DIFF)
         notes = self.get_notes(peaks)
+        notes = self.filter_notes(notes, sec_delay)
         return notes
     
     def get_notes(self, peaks, inspection_width=10000, use_chan1=True):
@@ -53,21 +54,33 @@ class Music:
                 
                 conversion_factor = self.sample_rate / len(fft_data)
                 pitch = fft_data.argmax() * conversion_factor
-                ret.append(Note(pitch))
+                timestamp = peak / self.sample_rate
+                ret.append(Note(pitch, timestamp))
         return ret
 
+    # ideally this is when dynamics will come in
+    def filter_notes(self, notes, sec_delay):
+        N = len(notes)
+        to_delete = list()
+        for i in range(1, N):
+            if notes[i - 1].timestamp + sec_delay > notes[i].timestamp:
+                to_delete.append(i)
+        for index in list(reversed(to_delete)):
+            del notes[index]
+        return notes
+            
+        
     
-    # Maybe there's a less computationally expensive way to find the start of notes
-    def find_peaks(self, window, resolution, SIGMA):
+    # Maybe there's a less computationally expensive way to find the start of notes instead of standard deviation?
+    def find_peaks(self, window, resolution, DIFF):
         peaks = list()
         for i in range(window, len(self.chan1) - window, window):
             prev = self.chan1[i-window: i]
             curr = self.chan1[i: i+window]
             p_std = np.std(prev)
             c_std = np.std(curr)
-            if c_std > p_std * SIGMA:
-                if len(peaks) == 0 or peaks[-1] + resolution < i:
-                    peaks.append(i)
+            if c_std > p_std + DIFF and (len(peaks) == 0 or peaks[-1] + resolution < i):
+                peaks.append(i)
         return peaks
         
     def addMeasure(self, measure):
