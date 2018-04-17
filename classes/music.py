@@ -39,8 +39,8 @@ class Music:
         self.chan1, self.chan2 = zip(*self.raw)
         self.measures = list()
         
-    def compile_music(self, window=1000, resolution=10000, DIFF=15, sec_delay=0.3):
-        peaks = self.find_peaks(window, resolution, DIFF)
+    def compile_music(self, window=1000, DIFF=15, sec_delay=0.3):
+        peaks = self.find_peaks(window, DIFF)
         notes = self.get_notes(peaks)
         notes = self.filter_notes(notes, sec_delay)
         return notes
@@ -72,14 +72,14 @@ class Music:
         
     
     # Maybe there's a less computationally expensive way to find the start of notes instead of standard deviation?
-    def find_peaks(self, window, resolution, DIFF):
+    def find_peaks(self, window, DIFF):
         peaks = list()
         for i in range(window, len(self.chan1) - window, window):
             prev = self.chan1[i-window: i]
             curr = self.chan1[i: i+window]
             p_std = np.std(prev)
             c_std = np.std(curr)
-            if c_std > p_std + DIFF and (len(peaks) == 0 or peaks[-1] + resolution < i):
+            if c_std > p_std + DIFF:
                 peaks.append(i)
         return peaks
         
