@@ -1,3 +1,6 @@
+# maybe don't need?
+from note import Note
+
 class Measure:
     
     def __init__(self, number, line=2, beats=4, beat_type=4, sign="G", divisions=1, new_attributes=False):

@@ -1,8 +1,12 @@
+# general imports
 import numpy as np
 
+# scipy imports
 from scipy.fftpack import fft
 from scipy.io import wavfile
 
+# custom classes
+from measure import Measure
 from note import Note
 
 class Music:
