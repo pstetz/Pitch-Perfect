@@ -1,15 +1,45 @@
+import numpy as np
+from scipy.io import wavfile
+
 class Music:
     
+    # something to think about
+    # raw = pd.DataFrame({"chan1": list(chan1), "chan2": list(chan2)})
+    # raw["time"] = [i / n for i in range(len(raw))]
+    # del chan1, chan2
+    
     # FIXME: make all these inputs mandatory
-    def __init__(self, title="title", author="Patrick Stetz",
-                 output_path="/Users/pbezuhov/Desktop/output.xml", input_path="input",
+    def __init__(self, title="title", artist="Patrick Stetz",
+                 output_path="/Users/pbezuhov/Desktop/output.xml",
                  ver_number="0.00"):
         self.title = title
         self.output_path = output_path
-        self.input_path = input_path
-        self.author = author
+        self.artist = artist
         self.ver_number = ver_number # version number of decoder
+
+    def read(self, input_path, is_wav_format=True):
+        self.input_path = input_path
+        if is_wav_format:
+            self.sample_rate, self.raw = wavfile.read(input_path)
+        self.chan1, self.chan2 = zip(*self.raw)
         self.measures = list()
+        
+    def compile_music(self):
+        self.peaks = self.find_peaks()
+        
+        return peaks
+    
+    def find_peaks(self, window=10, resolution=10000, SIGMA=100):
+        peaks = list()
+        for i in range(window, len(self.chan1) - window, window):
+            prev = self.chan1[i-window: i]
+            curr = self.chan1[i: i+window]
+            p_std = np.std(prev)
+            c_std = np.std(curr)
+            if c_std > p_std * SIGMA:
+                if len(peaks) == 0 or peaks[-1] + resolution < i:
+                    peaks.append(i)
+        return peaks
         
     def addMeasure(self, measure):
         self.measures.append(measure)
