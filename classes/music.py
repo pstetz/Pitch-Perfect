@@ -1,5 +1,9 @@
 import numpy as np
+
+from scipy.fftpack import fft
 from scipy.io import wavfile
+
+from note import Note
 
 class Music:
     
@@ -8,8 +12,8 @@ class Music:
                  title="title",
                  artist="Patrick Stetz",
                  output_path="/Users/pbezuhov/Desktop/output.xml",
-                 time_signature=(4, 4)
-                 tempo=60
+                 time_signature=(4, 4),
+                 tempo=60,
                  ver_number="0.00"):
         self.title = title
         self.artist = artist
@@ -26,12 +30,25 @@ class Music:
         self.measures = list()
         
     def compile_music(self):
-        self.peaks = self.find_peaks()
-        
-        return peaks
+        peaks = self.find_peaks()
+        notes = self.get_notes(peaks)
+        return notes
+    
+    def get_notes(self, peaks, inspection_width=10000, use_chan1=True):
+        ret = list()
+        for peak in peaks:
+            if use_chan1:
+                inspection_zone = self.chan1[peak: peak+inspection_width]
+                fft_data = np.abs(fft(inspection_zone))
+                
+                conversion_factor = self.sample_rate / len(fft_data)
+                pitch = fft_data.argmax() * conversion_factor
+                ret.append(Note(pitch))
+        return ret
+
     
     # Maybe there's a less computationally expensive way to find the start of notes
-    def find_peaks(self, window=10, resolution=10000, SIGMA=100):
+    def find_peaks(self, window=10, resolution=10000, SIGMA=20):
         peaks = list()
         for i in range(window, len(self.chan1) - window, window):
             prev = self.chan1[i-window: i]
