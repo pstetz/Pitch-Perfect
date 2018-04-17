@@ -3,18 +3,19 @@ from scipy.io import wavfile
 
 class Music:
     
-    # something to think about
-    # raw = pd.DataFrame({"chan1": list(chan1), "chan2": list(chan2)})
-    # raw["time"] = [i / n for i in range(len(raw))]
-    # del chan1, chan2
-    
     # FIXME: make all these inputs mandatory
-    def __init__(self, title="title", artist="Patrick Stetz",
+    def __init__(self, 
+                 title="title",
+                 artist="Patrick Stetz",
                  output_path="/Users/pbezuhov/Desktop/output.xml",
+                 time_signature=(4, 4)
+                 tempo=60
                  ver_number="0.00"):
         self.title = title
-        self.output_path = output_path
         self.artist = artist
+        self.output_path = output_path
+        self.time_signature = time_signature
+        self.tempo = tempo
         self.ver_number = ver_number # version number of decoder
 
     def read(self, input_path, is_wav_format=True):
@@ -29,6 +30,7 @@ class Music:
         
         return peaks
     
+    # Maybe there's a less computationally expensive way to find the start of notes
     def find_peaks(self, window=10, resolution=10000, SIGMA=100):
         peaks = list()
         for i in range(window, len(self.chan1) - window, window):
