@@ -9,9 +9,6 @@ from scipy.io import wavfile
 from measure import Measure
 from note import Note
 
-class OutPathRequiredException(Exception):
-    pass
-
 class Music:
     
     def __init__(self, 
@@ -21,9 +18,6 @@ class Music:
                  time_signature=(4, 4),
                  tempo=60,
                  ver_number="0.00"):
-        
-        if not output_path:
-            raise OutPathRequiredException("Output path is needed to later save sheet music (make sure it ends in .xml)")
             
         self.title = title
         self.artist = artist
@@ -37,13 +31,17 @@ class Music:
         if is_wav_format:
             self.sample_rate, self.raw = wavfile.read(input_path)
         self.chan1, self.chan2 = zip(*self.raw)
-        self.measures = list()
         
     def compile_music(self, window=1000, DIFF=15, sec_delay=0.3):
+        self.measures = list()
+        
         peaks = self.find_peaks(window, DIFF)
         notes = self.get_notes(peaks)
         notes = self.filter_notes(notes, sec_delay)
-        return notes
+        for i, note in enumerate(notes):
+            measure = Measure(i)
+            measure.addNote(note)
+            self.addMeasure(measure)
     
     def get_notes(self, peaks, inspection_width=10000, use_chan1=True):
         ret = list()
@@ -86,8 +84,9 @@ class Music:
     def addMeasure(self, measure):
         self.measures.append(measure)
         
-    def saveFile(self):
-        file = open(self.output_path, "w") 
+    def save(self, output_path):
+
+        file = open(output_path, "w") 
 
         # write top
         file.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
@@ -125,6 +124,7 @@ class Music:
                 file.write('      <pitch>\n')
                 file.write('        <step>{}</step>\n'.format(note.note))
                 file.write('        <octave>{}</octave>\n'.format(note.octave))
+                file.write('        <alter>{}</alter>\n'.format(note.alter))
                 file.write('      </pitch>\n')
                 file.write('      <duration>{}</duration>\n'.format(note.duration))
                 file.write('      <type>{}</type>\n'.format(note.typ))
