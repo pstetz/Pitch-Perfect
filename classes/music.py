@@ -9,16 +9,22 @@ from scipy.io import wavfile
 from measure import Measure
 from note import Note
 
+class OutPathRequiredException(Exception):
+    pass
+
 class Music:
     
-    # FIXME: make all these inputs mandatory
     def __init__(self, 
                  title="title",
                  artist="Patrick Stetz",
-                 output_path="/Users/pbezuhov/Desktop/output.xml",
+                 output_path=None,
                  time_signature=(4, 4),
                  tempo=60,
                  ver_number="0.00"):
+        
+        if not output_path:
+            raise OutPathRequiredException("Output path is needed to later save sheet music (make sure it ends in .xml)")
+            
         self.title = title
         self.artist = artist
         self.output_path = output_path
@@ -33,8 +39,8 @@ class Music:
         self.chan1, self.chan2 = zip(*self.raw)
         self.measures = list()
         
-    def compile_music(self):
-        peaks = self.find_peaks()
+    def compile_music(self, window=1000, resolution=10000, SIGMA=3):
+        peaks = self.find_peaks(window, resolution, SIGMA)
         notes = self.get_notes(peaks)
         return notes
     
@@ -52,7 +58,7 @@ class Music:
 
     
     # Maybe there's a less computationally expensive way to find the start of notes
-    def find_peaks(self, window=10, resolution=10000, SIGMA=20):
+    def find_peaks(self, window, resolution, SIGMA):
         peaks = list()
         for i in range(window, len(self.chan1) - window, window):
             prev = self.chan1[i-window: i]
