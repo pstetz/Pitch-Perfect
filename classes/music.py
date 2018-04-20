@@ -55,11 +55,8 @@ class Music:
                 timestamp = peak / self.sample_rate
 
                 for freq in resonant_freqs:
-                    print()
-                    print(freq, fft_data[freq])
                     if fft_data[freq] < max_signal * 0.25:
                         break
-                    print("didn't break")
                     note = fft_data[freq] * conversion_factor
                     note = Note(note, timestamp)
                     ret.append(note)
@@ -67,8 +64,6 @@ class Music:
 
     # ideally this is when dynamics will come in
     def filter_notes(self, notes):
-        for note in notes:
-            note.describe()
         N = len(notes)
         to_delete = list()
         for i in range(1, N):
