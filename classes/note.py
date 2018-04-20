@@ -22,7 +22,8 @@ class Note:
     def describe(self):
         note = str(self.note)
         note += ("#" if self.alter else "")
-        print("{}, octave: {}, actual pitch: {}Hz, ideal pitch: {}Hz".format(note, self.octave, self.pitch, self.given_pitch))
+        print("\n{}, octave: {}, actual pitch: {}Hz, ideal pitch: {}Hz".format(note, self.octave, self.pitch, self.given_pitch))
+        print("timestamp: {}".format(self.timestamp))
         
 freq_to_notes = {
     

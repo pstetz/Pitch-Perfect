@@ -14,14 +14,12 @@ class Music:
     def __init__(self, 
                  title="title",
                  artist="Patrick Stetz",
-                 output_path=None,
                  time_signature=(4, 4),
                  tempo=60,
                  ver_number="0.00"):
             
         self.title = title
         self.artist = artist
-        self.output_path = output_path
         self.time_signature = time_signature
         self.tempo = tempo
         self.ver_number = ver_number # version number of decoder
@@ -32,16 +30,17 @@ class Music:
             self.sample_rate, self.raw = wavfile.read(input_path)
         self.chan1, self.chan2 = zip(*self.raw)
         
-    def compile_music(self, window=1000, DIFF=15, sec_delay=0.3):
+    def compile_music(self, window=1000, DIFF=15):
         self.measures = list()
         
         peaks = self.find_peaks(window, DIFF)
         notes = self.get_notes(peaks)
-        notes = self.filter_notes(notes, sec_delay)
+        notes = self.filter_notes(notes)
         for i, note in enumerate(notes):
             measure = Measure(i+1)
             measure.addNote(note)
             self.addMeasure(measure)
+        return notes
     
     def get_notes(self, peaks, inspection_width=10000, use_chan1=True):
         ret = list()
@@ -51,13 +50,25 @@ class Music:
                 fft_data = np.abs(fft(inspection_zone))
                 
                 conversion_factor = self.sample_rate / len(fft_data)
-                pitch = fft_data.argmax() * conversion_factor
+                max_signal = max(fft_data)
+                resonant_freqs = (-fft_data).argsort()
                 timestamp = peak / self.sample_rate
-                ret.append(Note(pitch, timestamp))
+
+                for freq in resonant_freqs:
+                    print()
+                    print(freq, fft_data[freq])
+                    if fft_data[freq] < max_signal * 0.25:
+                        break
+                    print("didn't break")
+                    note = fft_data[freq] * conversion_factor
+                    note = Note(note, timestamp)
+                    ret.append(note)
         return ret
 
     # ideally this is when dynamics will come in
-    def filter_notes(self, notes, sec_delay):
+    def filter_notes(self, notes):
+        for note in notes:
+            note.describe()
         N = len(notes)
         to_delete = list()
         for i in range(1, N):
