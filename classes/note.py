@@ -2,14 +2,16 @@ import numpy as np
 
 class Note:
     
-    def __init__(self, pitch, timestamp, duration=4, typ="whole"):
+    def __init__(self, pitch, signal, timestamp, duration=4, typ="whole"):
         self.pitch = round(pitch, 3)
+        self.signal = round(signal, 3)
         self.timestamp = timestamp
         self.duration = duration
         self.typ = typ
         self.given_pitch = self.closest_pitch(pitch)
         
         note_info = freq_to_notes[self.given_pitch]
+        self.id     = note_info["id"]
         self.note   = note_info["note"]
         self.octave = note_info["octave"]
         self.alter  = note_info["alter"]
@@ -18,6 +20,10 @@ class Note:
         pitches = np.array(list(freq_to_notes.keys()))
         idx = (np.abs(pitches - pitch)).argmin()
         return pitches[idx]
+    
+    def getInfo(self):
+        return (self.timestamp, self.id, self.signal, self.pitch, self.given_pitch,
+                self.duration, self.note, self.octave, self.alter)
     
     def describe(self):
         note = str(self.note)
