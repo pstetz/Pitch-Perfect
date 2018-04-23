@@ -75,35 +75,40 @@ class Music:
             
         
     
-    # Maybe there's a less computationally expensive way to find the start of notes instead of standard deviation?
-    def find_peaks(self, window, DIFF):
+    def find_peaks(self, sound, separation, min_volume_level):
+
+        # return value of peak positions and signal strength
         peaks = list()
-        for i in range(window, len(self.chan1) - window, window):
-            prev = self.chan1[i-window: i]
-            curr = self.chan1[i: i+window]
-            p_std = np.std(prev)
-            c_std = np.std(curr)
-            if c_std > p_std + DIFF:
-                peaks.append(i)
+
+        # initializing variables
+        max_prev_i = np.argmax(sound[:separation])
+        max_next_i = np.argmax(sound[separation + 1: 2 * separation]) + separation + 1
+        max_prev   = sound[max_prev_i]
+        max_next   = sound[max_next_i]
+
+        for i in range(separation, len(sound) - separation - 1):
+
+            # Determining the maximum value in the previous window
+            if sound[i - 1] > max_prev:
+                max_prev_i = i - 1
+                max_prev   = sound[max_prev_i]
+            elif i - max_prev_i > separation:
+                max_prev_i = np.argmax(sound[i - separation: i - 1]) + i - separation
+                max_prev   = sound[max_prev_i]
+
+            # Determining the maximum value in the next window
+            if sound[i + separation + 1] > max_next:
+                max_next_i = i + separation + 1
+                max_next   = sound[max_next_i]
+            elif max_next_i == i:
+                max_next_i = np.argmax(sound[i + 1: i + separation + 1]) + i + 1
+                max_next = sound[max_next_i]
+
+            # Determining if the current point is a peak
+            if sound[i] > max_prev and sound[i] > max_next and sound[i] > min_volume_level:
+                if len(peaks) == 0 or i - peaks[-1][0] > separation:
+                    peaks.append((i, sound[i]))
         return peaks
-    
-    """
-    Improvement!  There are ways of making this go faster too
-    
-    def find_peaks(self):
-        # this comes out to around a tenth of a second.
-        # notes played within this interval will be counted as one
-        separation = 5000
-        
-        peaks = list()
-        for i in range(separation, len(self.chan1) - separation):
-            prv = self.chan1[i - separation: i]
-            nxt = self.chan1[i+1: i+separation+1]
-            if chan1[i] > max(prv) and self.chan1[i] > max(nxt) and self.chan1[i] > 5000:
-                if len(peaks) == 0 or i - peaks[-1] > separation:
-                    peaks.append(i)
-        return peaks
-    """
         
     def addMeasure(self, measure):
         self.measures.append(measure)
