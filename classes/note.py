@@ -2,9 +2,10 @@ import numpy as np
 
 class Note:
     
-    def __init__(self, pitch, signal, timestamp, duration=4, typ="whole"):
+    def __init__(self, pitch, signal, loudness, timestamp, duration=4, typ="whole"):
         self.pitch = round(pitch, 3)
         self.signal = round(signal, 3)
+        self.loudness = round(loudness, 3)
         self.timestamp = timestamp
         self.duration = duration
         self.typ = typ
@@ -23,7 +24,7 @@ class Note:
     
     def getInfo(self):
         return (self.timestamp, self.id, self.signal, self.pitch, self.given_pitch,
-                self.duration, self.note, self.octave, self.alter)
+                self.loudness, self.duration, self.note, self.octave, self.alter)
     
     def describe(self):
         note = str(self.note)

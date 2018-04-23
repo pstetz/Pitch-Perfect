@@ -86,6 +86,24 @@ class Music:
             if c_std > p_std + DIFF:
                 peaks.append(i)
         return peaks
+    
+    """
+    Improvement!  There are ways of making this go faster too
+    
+    def find_peaks(self):
+        # this comes out to around a tenth of a second.
+        # notes played within this interval will be counted as one
+        separation = 5000
+        
+        peaks = list()
+        for i in range(separation, len(self.chan1) - separation):
+            prv = self.chan1[i - separation: i]
+            nxt = self.chan1[i+1: i+separation+1]
+            if chan1[i] > max(prv) and self.chan1[i] > max(nxt) and self.chan1[i] > 5000:
+                if len(peaks) == 0 or i - peaks[-1] > separation:
+                    peaks.append(i)
+        return peaks
+    """
         
     def addMeasure(self, measure):
         self.measures.append(measure)
