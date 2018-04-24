@@ -65,7 +65,7 @@ class Music:
                 max_next = sound[max_next_i]
 
             # Determining if the current point is a peak
-            if sound[i] > max_prev and sound[i] > max_next and sound[i] > min_volume_level:
+            if sound[i] >= max_prev and sound[i] >= max_next and sound[i] > min_volume_level:
                 if len(peaks) == 0 or i - peaks[-1][0] > separation:
                     peaks.append((i, sound[i]))
         return peaks
@@ -86,8 +86,9 @@ class Music:
         if use_chan1:
             peaks = self.find_peaks(self.chan1, separation, min_volume_level)
             notes = self.get_notes(self.chan1, peaks, separation, max_pitch, stength_cutoff)
-        notes = self.filter_groups(notes)
-        notes = self.filter_nearby_times(notes)
+        if len(notes) > 0:
+            notes = self.filter_groups(notes)
+            notes = self.filter_nearby_times(notes)
         return notes
     
     def get_notes(self, sound, peaks, separation, max_pitch, stength_cutoff):
@@ -136,7 +137,10 @@ class Music:
     def filter_nearby_times(self, notes):
         self.start_offset = notes.iloc[0].time
         notes["time"]     = notes["time"] - self.start_offset
-        notes["duration"] = notes.time.shift(-1) - notes.time
+        if len(notes > 1):
+            notes["duration"] = notes.time.shift(-1) - notes.time
+        else:
+            notes["duration"] = [4] * len(notes)
         notes["duration"] = notes.duration.map(closest_duration)
         notes["typ"]      = notes.duration.map(lambda x: duration_to_notes[x]["name"])
         return notes
