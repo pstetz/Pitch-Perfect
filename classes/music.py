@@ -9,16 +9,8 @@ from scipy.io import wavfile
 # custom classes
 from measure import Measure
 from note import Note
+from info import duration_to_notes
 
-duration_to_notes = {
-    0.25  : {"duration": 0.25, "name": "sixteenth"},
-    0.5   : {"duration": 0.5 , "name": "eighth"},
-    0.75  : {"duration": 0.75, "name": "dotted-eighth"},
-    1     : {"duration": 1   , "name": "quarter"},
-    2     : {"duration": 2   , "name": "half"},
-    3     : {"duration": 3   , "name": "dotted-half"},
-    4     : {"duration": 4   , "name": "whole"},
-}
 
 def closest_duration(duration):
     durations = np.array(list(duration_to_notes.keys()))
