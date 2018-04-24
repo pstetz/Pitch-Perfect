@@ -4,7 +4,7 @@ author: Patrick Stetz [(gihub)](https://github.com/pstetz)
 
 # Introduction:
 
-This project takes a .wav file and converts it to sheet music.  This project is in it's beginnings so it can only transcript 1 or 2 notes at a time and cannot differentiate between instruments.
+This project takes a .wav music file and converts it to sheet music.
 
 # Install:
 
