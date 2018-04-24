@@ -3,21 +3,24 @@ from note import Note
 
 class Measure:
     
-    def __init__(self, number, line=4, clef="bass", beats=4, beat_type=4, divisions=1, new_attributes=False):
-        self.number = number
+    def __init__(self, number, beats, beat_type, line=4, clef="bass", divisions=1, new_attributes=False):
+        self.number = number + 1
         self.divisions = divisions
-        self.new_attributes = (number == 1)
+        self.new_attributes = (self.number == 1)
         
         self.beats = beats
         self.beat_type = beat_type
         clefInfo = self.getClef(clef)
         self.line = clefInfo["line"]
         self.sign = clefInfo["sign"]
-        
+        self.beats_left = beats
         self.notes = list()
         
     def addNote(self, note):
         self.notes.append(note)
+        
+    def wrap_up_time(self):
+        pass
         
     def getClef(self, clef):
         return {

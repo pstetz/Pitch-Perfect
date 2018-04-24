@@ -2,12 +2,15 @@ import numpy as np
 
 class Note:
     
-    def __init__(self, pitch, signal, loudness, timestamp):
+    def __init__(self, pitch, signal, loudness, timestamp, duration=None, typ=None):
         self.pitch = round(pitch, 3)
         self.signal = round(signal, 3)
         self.loudness = round(loudness, 3)
         self.timestamp = timestamp
         self.given_pitch = self.closest_pitch(pitch)
+        
+        self.duration = duration
+        self.typ = typ
         
         note_info = freq_to_notes[self.given_pitch]
         self.id     = note_info["id"]
@@ -29,17 +32,6 @@ class Note:
         note += ("#" if self.alter else "")
         print("\n{}, octave: {}, actual pitch: {}Hz, ideal pitch: {}Hz".format(note, self.octave, self.pitch, self.given_pitch))
         print("timestamp: {}".format(self.timestamp))
-   
-
-duration_to_notes = {
-    0.25  : {"duration": 0.25, "name": "sixteenth"},
-    0.5   : {"duration": 0.5 , "name": "eighth"},
-    0.75  : {"duration": 0.75, "name": "dotted-eighth"},
-    1     : {"duration": 1   , "name": "quarter"},
-    2     : {"duration": 2   , "name": "half"},
-    3     : {"duration": 3   , "name": "dotted-half"},
-    4     : {"duration": 4   , "name": "whole"},
-}
 
 freq_to_notes = {
     

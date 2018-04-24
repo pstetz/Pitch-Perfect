@@ -1,5 +1,6 @@
 # general imports
 import numpy as np
+import pandas as pd
 
 # scipy imports
 from scipy.fftpack import fft
@@ -9,72 +10,39 @@ from scipy.io import wavfile
 from measure import Measure
 from note import Note
 
+duration_to_notes = {
+    0.25  : {"duration": 0.25, "name": "sixteenth"},
+    0.5   : {"duration": 0.5 , "name": "eighth"},
+    0.75  : {"duration": 0.75, "name": "dotted-eighth"},
+    1     : {"duration": 1   , "name": "quarter"},
+    2     : {"duration": 2   , "name": "half"},
+    3     : {"duration": 3   , "name": "dotted-half"},
+    4     : {"duration": 4   , "name": "whole"},
+}
+
+def closest_duration(duration):
+    durations = np.array(list(duration_to_notes.keys()))
+    idx = (np.abs(durations - duration)).argmin()
+    return durations[idx]
+
 class Music:
     
     def __init__(self, 
-                 title="title",
+                 title="Solitude in E minor",
                  artist="Patrick Stetz",
                  time_signature=(4, 4),
-                 tempo=60,
+                 tempo=120,
                  ver_number="0.00"):
             
         self.title = title
         self.artist = artist
+            
         self.time_signature = time_signature
         self.tempo = tempo
+        self.unit = 60 / (tempo * 4) # Finest resolution is 16th notes
+        self.unit_duration = tempo / 60
         self.ver_number = ver_number # version number of decoder
-
-    def read(self, input_path, is_wav_format=True):
-        self.input_path = input_path
-        if is_wav_format:
-            self.sample_rate, self.raw = wavfile.read(input_path)
-        self.chan1, self.chan2 = zip(*self.raw)
         
-    def compile_music(self, window=1000, DIFF=15):
-        self.measures = list()
-        
-        peaks = self.find_peaks(window, DIFF)
-        notes = self.get_notes(peaks)
-        notes = self.filter_notes(notes)
-        for i, note in enumerate(notes):
-            measure = Measure(i+1)
-            measure.addNote(note)
-            self.addMeasure(measure)
-        return notes
-    
-    def get_notes(self, peaks, inspection_width=10000, use_chan1=True):
-        ret = list()
-        for peak in peaks:
-            if use_chan1:
-                inspection_zone = self.chan1[peak: peak+inspection_width]
-                fft_data = np.abs(fft(inspection_zone))
-                
-                conversion_factor = self.sample_rate / len(fft_data)
-                max_signal = max(fft_data)
-                resonant_freqs = (-fft_data).argsort()
-                timestamp = peak / self.sample_rate
-
-                for freq in resonant_freqs:
-                    if fft_data[freq] < max_signal * 0.25:
-                        break
-                    note = fft_data[freq] * conversion_factor
-                    note = Note(note, timestamp)
-                    ret.append(note)
-        return ret
-
-    # ideally this is when dynamics will come in
-    def filter_notes(self, notes):
-        N = len(notes)
-        to_delete = list()
-        for i in range(1, N):
-            if notes[i - 1].given_pitch == notes[i].given_pitch:
-                to_delete.append(i)
-        for index in list(reversed(to_delete)):
-            del notes[index]
-        return notes
-            
-        
-    
     def find_peaks(self, sound, separation, min_volume_level):
 
         # return value of peak positions and signal strength
@@ -109,6 +77,97 @@ class Music:
                 if len(peaks) == 0 or i - peaks[-1][0] > separation:
                     peaks.append((i, sound[i]))
         return peaks
+
+    def read(self, input_path, is_wav_format=True):
+        self.input_path = input_path
+        if is_wav_format:
+            self.sample_rate, self.raw = wavfile.read(input_path)
+        self.chan1, self.chan2 = list(map(list, zip(*self.raw)))
+        self.duration = len(self.raw) / self.sample_rate
+        
+    def get_input_path(self):
+        return self.input_path
+        
+    def compile_music(self, separation=3000, min_volume_level=5000, max_pitch=4000, stength_cutoff=0.75, use_chan1=True):
+        self.measures = list()
+        
+        if use_chan1:
+            peaks = self.find_peaks(self.chan1, separation, min_volume_level)
+            notes = self.get_notes(self.chan1, peaks, separation, max_pitch, stength_cutoff)
+        notes = self.filter_groups(notes)
+        notes = self.filter_nearby_times(notes)
+        return notes
+    
+    def get_notes(self, sound, peaks, separation, max_pitch, stength_cutoff):
+        notes = list()
+        for peak, loudness in peaks:
+            
+            inspection_zone = sound[peak: peak + separation]
+            fft_data = np.abs(fft(inspection_zone))
+
+            conversion_factor = self.sample_rate / len(fft_data)
+            max_signal = max(fft_data)
+            resonant_freqs = (-fft_data).argsort()
+            timestamp = peak / self.sample_rate
+
+            for freq in resonant_freqs:
+                signal = fft_data[freq]
+                if signal < stength_cutoff * max_signal:
+                    break
+                if freq * conversion_factor < max_pitch:
+                    note = Note(freq * conversion_factor, signal, loudness, timestamp)
+                    notes.append(note.getInfo())
+        notes = pd.DataFrame(notes, columns=["time", "id", "signal", "pitch", "given_pitch",
+                                             "loudness", "note", "octave", "alter"])
+        return notes
+
+    # picks the loudest frequency for a certain time
+    def filter_groups(self, notes):
+        ret = pd.DataFrame(columns=notes.columns)
+        groups = notes.groupby("time")
+
+        for key, note in groups:
+            
+            if len(note) == 1:
+                ret = ret.append(note)
+            else:
+                to_delete = list()
+                index_offset = min(note.index)
+                for i in range(index_offset, len(note) + index_offset):
+                    for j in range(i + 1, len(note) + index_offset):
+#                         if abs(note.id[i] - note.id[j]) < 2:
+                        to_delete.append(i if note.loudness[i] < note.loudness[j] else j)
+                ret = ret.append(note.drop(to_delete))
+        return ret
+    
+    # checks nearby notes for validation
+    def filter_nearby_times(self, notes):
+        self.start_offset = notes.iloc[0].time
+        notes["time"]     = notes["time"] - self.start_offset
+        notes["duration"] = notes.time.shift(-1) - notes.time
+        notes["duration"] = notes.duration.map(closest_duration)
+        notes["typ"]      = notes.duration.map(lambda x: duration_to_notes[x]["name"])
+        return notes
+    
+    def format_notes(self, notes):
+        measure_counter, time_counter = 0, 0
+        curr_measure = Measure(measure_counter, self.time_signature[0], self.time_signature[1])
+        for i in range(len(notes)):
+            row = notes.iloc[i]
+            note = Note(row.given_pitch, row.signal, row.loudness, row.time, duration=row.duration, typ=row.typ)
+            if time_counter + row.duration > 4:
+                # FIXME: this fills up the rest of the measure with a rest, but it can be better
+                # Ideally it would be smart enough to wrap up a measure if there's little cutoff
+                # or tie current note into next measure.
+                curr_measure.wrap_up_time()
+                self.addMeasure(curr_measure)
+                measure_counter += 1
+                time_counter = 0
+                curr_measure = Measure(measure_counter, self.time_signature[0], self.time_signature[1])
+            curr_measure.addNote(row)
+        curr_measure.wrap_up_time()
+        self.addMeasure(curr_measure)
+            
         
     def addMeasure(self, measure):
         self.measures.append(measure)
