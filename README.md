@@ -38,9 +38,3 @@ Not yet operable
 
  - For a thorough understanding of Music XML, please follow this [link](https://wpmedia.musicxml.com/wp-content/uploads/2017/12/musicxml-tutorial.pdf?_ga=2.160318969.598454358.1523905769-1890310323.1523905769)
 
- - [Colah's blog](https://colah.github.io/) is a great resource for visualizing neural networks
-
- - Python's [speech recognition library](https://pypi.org/project/SpeechRecognition/) will be helpful once I start trying to get lyics
-
-
-
