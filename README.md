@@ -10,7 +10,7 @@ This project takes a .wav music file and converts it to sheet music.
 
 ### Clone repo unto your own folder
 
-`git clone https://github.com/pstetz/sound_analyzer.git`
+`git clone https://github.com/pstetz/Pitch-Perfect.git`
 
 ### Open main.ipynb
 
