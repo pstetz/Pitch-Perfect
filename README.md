@@ -1,4 +1,4 @@
-# Sound Analyzer
+# Pitch Perfect
 
 author: Patrick Stetz [(gihub)](https://github.com/pstetz)
 
