@@ -1,10 +1,10 @@
-# Pitch Perfect
-
-author: Patrick Stetz [(gihub)](https://github.com/pstetz)
-
 | <img style="width:400px; float:left" src="photos/cello_a3.png" alt="Cello A3" /> | 
 |:--:| 
 | *A3 on the Cello* |
+
+# Pitch Perfect
+
+author: Patrick Stetz [(gihub)](https://github.com/pstetz)
 
 # Introduction:
 
@@ -16,7 +16,7 @@ This project takes a .wav music file and converts it to sheet music.
 
 `git clone https://github.com/pstetz/Pitch-Perfect.git`
 
-# Run
+# Run:
 
 - Open main.ipynb
 
@@ -48,11 +48,11 @@ Currently not yet operable
 
 Included in this project is a data generator.  This Generator is able to take in a note from an instrument and convert it to all the other 107 pitches.  The motivation for this generator is to provide labeled data for the RNN method.
 
-The Data Generator first takes in a note as input.  Next, it halves (and doubles) the frequency until we are outside the bounds of musical frequencies.
+The Data Generator first takes in a note as input.  Next, it halves (and doubles) the frequency until we hit the bounds of musical frequencies.
 
 | <img style="width:400px; float:left" src="photos/7_gen_octaves.png" alt="7 octaves generated from 1 note" /> | 
 |:--:| 
-| *7 octaves generated from 1 note* |
+| *All 7 octaves generated from 1 note* |
 
 Each of these 7 octaves are then passed into a different function that stretches and compresses the notes to create a new sample at every half step.  For those interested, the frequency ratio of successive half notes is always the same 1.0595 or 2^(1/12).
 
