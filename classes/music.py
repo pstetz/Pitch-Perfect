@@ -178,7 +178,7 @@ class Music:
         file.write('<score-partwise version="3.1">\n')
         file.write('  <part-list>\n')
         file.write('    <score-part id="P1">\n')
-        file.write('      <part-name>{}</part-name>\n'.format(self.title))
+        file.write(f'      <part-name>{self.title}</part-name>\n')
         file.write('    </score-part>\n')
         file.write('  </part-list>\n')
         file.write('  <part id="P1">\n')
@@ -187,18 +187,18 @@ class Music:
 
         # create music
         for measure in self.measures:
-            file.write('    <measure number="{}">\n'.format(measure.number))
+            file.write(f'    <measure number="{measure.number}">\n')
             if measure.new_attributes:
                 file.write('      <attributes>\n')
-                file.write('        <divisions>{}</divisions>\n'.format(measure.divisions))
+                file.write(f'        <divisions>{measure.divisions}</divisions>\n')
                 file.write('        <key><fifths>0</fifths></key>\n') # FIXME: look into this
                 file.write('        <time>\n')
-                file.write('          <beats>{}</beats>\n'.format(measure.beats))
-                file.write('          <beat-type>{}</beat-type>\n'.format(measure.beat_type))
+                file.write(f'          <beats>{measure.beats}</beats>\n')
+                file.write(f'          <beat-type>{measure.beat_type}</beat-type>\n')
                 file.write('        </time>\n')
                 file.write('        <clef>\n')
-                file.write('          <sign>{}</sign>\n'.format(measure.sign))
-                file.write('          <line>{}</line>\n'.format(measure.line))
+                file.write(f'          <sign>{measure.sign}</sign>\n')
+                file.write(f'          <line>{measure.line}</line>\n')
                 file.write('        </clef>\n')
                 file.write('      </attributes>\n')
 
@@ -206,12 +206,12 @@ class Music:
             for note in measure.notes:
                 file.write('      <note>\n')
                 file.write('        <pitch>\n')
-                file.write('          <step>{}</step>\n'.format(note.note))
-                file.write('          <alter>{}</alter>\n'.format(note.alter))               
-                file.write('          <octave>{}</octave>\n'.format(note.octave))
+                file.write(f'          <step>{note.note}</step>\n')
+                file.write(f'          <alter>{note.alter}</alter>\n')
+                file.write(f'          <octave>{note.octave}</octave>\n')
                 file.write('        </pitch>\n')
-                file.write('        <duration>{}</duration>\n'.format(note.duration))
-                file.write('        <type>{}</type>\n'.format(note.typ))
+                file.write(f'        <duration>{note.duration}</duration>\n')
+                file.write(f'        <type>{note.typ}</type>\n')
                 file.write('      </note>\n')
 
             file.write('    </measure>\n')
