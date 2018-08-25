@@ -17,12 +17,23 @@ class Measure:
         self.notes = list()
         
     def addNote(self, note):
+        """
+        Adds a note to the measure.
+        
+        NOTE: Does not perform any checks before adding the note.
+        """
         self.notes.append(note)
         
     def wrap_up_time(self):
+        """
+        TODO: Fills the remaining space in a measure with empty time.
+        """
         pass
         
     def getClef(self, clef):
+        """
+        Returns the information for a particular cleft.  This is only important for XML formatting.
+        """
         return {
                 "treble": {"sign": "G", "line": 2},
                 "alto":   {"sign": "C", "line": 3},

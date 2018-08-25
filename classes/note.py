@@ -20,15 +20,24 @@ class Note:
         self.alter  = note_info["alter"]
         
     def closest_pitch(self, pitch):
+        """
+        Given a pitch finds the closest musical note.  This is determined by the absolute distance in frequency (Hertz).
+        """
         pitches = np.array(list(freq_to_notes.keys()))
         idx     = (np.abs(pitches - pitch)).argmin()
         return pitches[idx]
     
     def getInfo(self):
+        """
+        Returns all the information stored in a musical note.
+        """
         return (self.timestamp, self.id, self.signal, self.pitch, self.given_pitch,
                 self.loudness, self.note, self.octave, self.alter)
     
     def describe(self):
+        """
+        Prints all the information describing a note.
+        """
         note  = str(self.note)
         note += ("#" if self.alter else "")
         print(f"\n{note}, octave: {self.octave}, actual pitch: {self.pitch}Hz, ideal pitch: {self.given_pitch}Hz")
