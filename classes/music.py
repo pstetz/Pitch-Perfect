@@ -78,6 +78,7 @@ class Music:
         if len(notes) > 0:
             notes = self.filter_groups(notes)
             notes = self.add_time_info(notes)
+            notes = self.remove_dup_notes(notes)
         return notes
     
     def get_notes(self, sound, peaks, separation, max_pitch, stength_cutoff):
@@ -185,6 +186,19 @@ class Music:
                         to_delete.append(i if note.loudness[i] < note.loudness[j] else j)
                 filtered_notes = filtered_notes.append(note.drop(to_delete))
         return filtered_notes
+    
+    def remove_dup_notes(self, notes, decay=0.000012):
+        """
+        Removes notes that are just echos.  Uses a decay factor of 0.000012 which is
+        slightly smaller than the 0.000021 found in the decay.ipynb
+        
+        Input
+        - notes: DataFrame of notes before processing
+        
+        Output
+        - notes: DataFrame of notes after processing
+        """
+        pass
     
     def add_time_info(self, notes):
         """
